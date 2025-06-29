@@ -19,6 +19,7 @@ public class MainFrame extends JFrame {
     private ReaderPanel readerPanel;
     private BorrowPanel borrowPanel;
     private ReturnPanel returnPanel;
+    private SalePanel salePanel;
     private QueryPanel queryPanel;
     private StatisticsPanel statisticsPanel;
 
@@ -48,6 +49,7 @@ public class MainFrame extends JFrame {
         readerPanel = new ReaderPanel();
         borrowPanel = new BorrowPanel();
         returnPanel = new ReturnPanel();
+        salePanel = new SalePanel();
         queryPanel = new QueryPanel();
         statisticsPanel = new StatisticsPanel();
 
@@ -56,6 +58,7 @@ public class MainFrame extends JFrame {
         contentPanel.add(readerPanel, "reader");
         contentPanel.add(borrowPanel, "borrow");
         contentPanel.add(returnPanel, "return");
+        contentPanel.add(salePanel, "sale");
         contentPanel.add(queryPanel, "query");
         contentPanel.add(statisticsPanel, "statistics");
 
@@ -81,8 +84,7 @@ public class MainFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 System.exit(0);
             }
-        });
-
+@@ -86,96 +89,105 @@ public class MainFrame extends JFrame {
         systemMenu.add(changePasswordItem);
         systemMenu.addSeparator();
         systemMenu.add(exitItem);
@@ -108,6 +110,11 @@ public class MainFrame extends JFrame {
         borrowMenu.add(borrowItem);
         borrowMenu.add(returnItem);
 
+        JMenu saleMenu = new JMenu("销售管理");
+        JMenuItem saleItem = new JMenuItem("图书销售");
+        saleItem.addActionListener(e -> cardLayout.show(contentPanel, "sale"));
+        saleMenu.add(saleItem);
+
         // 查询统计菜单
         JMenu queryMenu = new JMenu("查询统计");
         JMenuItem queryItem = new JMenuItem("综合查询");
@@ -132,6 +139,7 @@ public class MainFrame extends JFrame {
         menuBar.add(bookMenu);
         menuBar.add(readerMenu);
         menuBar.add(borrowMenu);
+        menuBar.add(saleMenu);
         menuBar.add(queryMenu);
         menuBar.add(helpMenu);
 
@@ -146,6 +154,7 @@ public class MainFrame extends JFrame {
         JButton btnReader = new JButton("读者管理");
         JButton btnBorrow = new JButton("借书");
         JButton btnReturn = new JButton("还书");
+        JButton btnSale = new JButton("销售");
         JButton btnQuery = new JButton("查询");
         JButton btnStatistics = new JButton("统计");
 
@@ -153,6 +162,7 @@ public class MainFrame extends JFrame {
         btnReader.addActionListener(e -> cardLayout.show(contentPanel, "reader"));
         btnBorrow.addActionListener(e -> cardLayout.show(contentPanel, "borrow"));
         btnReturn.addActionListener(e -> cardLayout.show(contentPanel, "return"));
+        btnSale.addActionListener(e -> cardLayout.show(contentPanel, "sale"));
         btnQuery.addActionListener(e -> cardLayout.show(contentPanel, "query"));
         btnStatistics.addActionListener(e -> cardLayout.show(contentPanel, "statistics"));
 
@@ -161,6 +171,7 @@ public class MainFrame extends JFrame {
         toolBar.addSeparator();
         toolBar.add(btnBorrow);
         toolBar.add(btnReturn);
+        toolBar.add(btnSale);
         toolBar.addSeparator();
         toolBar.add(btnQuery);
         toolBar.add(btnStatistics);
