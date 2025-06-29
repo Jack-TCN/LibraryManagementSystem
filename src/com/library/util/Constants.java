@@ -3,7 +3,7 @@ package com.library.util;
 public class Constants {
 
     // 系统常量
-    public static final String SYSTEM_TITLE = "学校图书借阅管理系统";
+    public static final String SYSTEM_TITLE = "学校图书销售管理系统";
     public static final String VERSION = "1.0";
 
     // 默认值
@@ -35,6 +35,10 @@ public class Constants {
 
     public static final String[] BORROW_COLUMN_NAMES = {
             "记录ID", "读者姓名", "图书名称", "借阅日期", "应还日期", "归还日期", "状态", "逾期天数", "罚款"
+    };
+
+    public static final String[] SALE_COLUMN_NAMES = {
+            "编号", "客户姓名", "图书名称", "数量", "销售日期", "总价"
     };
 
     // 消息常量
