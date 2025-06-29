@@ -16,7 +16,15 @@ ADD CONSTRAINT FK_BorrowRecord_Reader
 FOREIGN KEY (ReaderID) REFERENCES Reader(ReaderID);
 
 ALTER TABLE BorrowRecord
-ADD CONSTRAINT FK_BorrowRecord_Book 
+ADD CONSTRAINT FK_BorrowRecord_Book
+FOREIGN KEY (BookID) REFERENCES Book(BookID);
+
+ALTER TABLE SaleRecord
+ADD CONSTRAINT FK_SaleRecord_Reader
+FOREIGN KEY (ReaderID) REFERENCES Reader(ReaderID);
+
+ALTER TABLE SaleRecord
+ADD CONSTRAINT FK_SaleRecord_Book
 FOREIGN KEY (BookID) REFERENCES Book(BookID);
 
 -- 创建索引以提高查询性能
@@ -24,3 +32,4 @@ CREATE INDEX IX_Book_Title ON Book(Title);
 CREATE INDEX IX_Book_Author ON Book(Author);
 CREATE INDEX IX_Reader_Name ON Reader(ReaderName);
 CREATE INDEX IX_BorrowRecord_Status ON BorrowRecord(Status);
+CREATE INDEX IX_SaleRecord_SaleDate ON SaleRecord(SaleDate);
