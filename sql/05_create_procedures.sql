@@ -1,0 +1,137 @@
+-- 1. 借书存储过程
+CREATE PROCEDURE SP_BorrowBook
+    @ReaderID INT,
+    @BookID INT,
+    @Result INT OUTPUT,
+    @Message NVARCHAR(200) OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRANSACTION;
+    
+    BEGIN TRY
+        -- 检查读者状态
+        IF NOT EXISTS (SELECT 1 FROM Reader WHERE ReaderID = @ReaderID AND Status = '正常')
+        BEGIN
+            SET @Result = -1;
+            SET @Message = '读者状态异常，无法借书';
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+        
+        -- 检查图书库存
+        DECLARE @Stock INT;
+        SELECT @Stock = Stock FROM Book WHERE BookID = @BookID;
+        
+        IF @Stock IS NULL OR @Stock <= 0
+        BEGIN
+            SET @Result = -2;
+            SET @Message = '图书库存不足';
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+        
+        -- 检查是否超过借阅数量限制
+        DECLARE @BorrowLimit INT, @CurrentBorrow INT;
+        SELECT @BorrowLimit = rt.BorrowCount
+        FROM Reader r
+        JOIN ReaderType rt ON r.ReaderTypeID = rt.TypeID
+        WHERE r.ReaderID = @ReaderID;
+        
+        SELECT @CurrentBorrow = COUNT(*)
+        FROM BorrowRecord
+        WHERE ReaderID = @ReaderID AND Status = '借阅中';
+        
+        IF @CurrentBorrow >= @BorrowLimit
+        BEGIN
+            SET @Result = -3;
+            SET @Message = '已达到借阅数量上限';
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+        
+        -- 获取借阅天数
+        DECLARE @BorrowDays INT;
+        SELECT @BorrowDays = rt.BorrowDays
+        FROM Reader r
+        JOIN ReaderType rt ON r.ReaderTypeID = rt.TypeID
+        WHERE r.ReaderID = @ReaderID;
+        
+        -- 插入借阅记录
+        INSERT INTO BorrowRecord (ReaderID, BookID, BorrowDate, DueDate, Status)
+        VALUES (@ReaderID, @BookID, GETDATE(), DATEADD(DAY, @BorrowDays, GETDATE()), '借阅中');
+        
+        -- 更新图书库存
+        UPDATE Book SET Stock = Stock - 1 WHERE BookID = @BookID;
+        
+        SET @Result = 1;
+        SET @Message = '借书成功';
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        SET @Result = -99;
+        SET @Message = ERROR_MESSAGE();
+        ROLLBACK TRANSACTION;
+    END CATCH
+END;
+GO
+
+-- 2. 还书存储过程
+CREATE PROCEDURE SP_ReturnBook
+    @RecordID INT,
+    @Result INT OUTPUT,
+    @Message NVARCHAR(200) OUTPUT,
+    @Fine DECIMAL(10,2) OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRANSACTION;
+    
+    BEGIN TRY
+        -- 检查借阅记录
+        IF NOT EXISTS (SELECT 1 FROM BorrowRecord WHERE RecordID = @RecordID AND Status = '借阅中')
+        BEGIN
+            SET @Result = -1;
+            SET @Message = '借阅记录不存在或已归还';
+            SET @Fine = 0;
+            ROLLBACK TRANSACTION;
+            RETURN;
+        END
+        
+        -- 计算罚款
+        DECLARE @DueDate DATETIME, @BookID INT;
+        SELECT @DueDate = DueDate, @BookID = BookID
+        FROM BorrowRecord
+        WHERE RecordID = @RecordID;
+        
+        IF @DueDate < GETDATE()
+        BEGIN
+            SET @Fine = DATEDIFF(DAY, @DueDate, GETDATE()) * 0.5;
+        END
+        ELSE
+        BEGIN
+            SET @Fine = 0;
+        END
+        
+        -- 更新借阅记录
+        UPDATE BorrowRecord 
+        SET ReturnDate = GETDATE(), 
+            Status = '已归还',
+            Fine = @Fine
+        WHERE RecordID = @RecordID;
+        
+        -- 更新图书库存
+        UPDATE Book SET Stock = Stock + 1 WHERE BookID = @BookID;
+        
+        SET @Result = 1;
+        SET @Message = '还书成功';
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        SET @Result = -99;
+        SET @Message = ERROR_MESSAGE();
+        SET @Fine = 0;
+        ROLLBACK TRANSACTION;
+    END CATCH
+END;
+GO

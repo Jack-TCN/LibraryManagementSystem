@@ -1,0 +1,4 @@
+USE master; 先走这一步 
+GO
+再这一步重新附加数据库： 因为我在 SSMS 中分离数据库 不然文件复制不了给你
+CREATE DATABASE LibraryDB ON (FILENAME = 'C:\Users\27476\Desktop\LibraryManagementSystem\database\LibraryDB.mdf'), (FILENAME = 'C:\Users\27476\Desktop\LibraryManagementSystem\database\LibraryDB_log.ldf') FOR ATTACH;
