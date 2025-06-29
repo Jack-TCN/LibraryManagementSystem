@@ -77,3 +77,13 @@ CREATE TABLE Admin
     AdminName NVARCHAR(50),
     PermissionLevel INT DEFAULT 1              -- 权限级别
 );
+-- 8. 创建销售记录表
+CREATE TABLE SaleRecord
+(
+    SaleID INT PRIMARY KEY IDENTITY(1,1),
+    ReaderID INT,
+    BookID INT NOT NULL,
+    Quantity INT DEFAULT 1 CHECK(Quantity > 0),
+    SaleDate DATETIME DEFAULT GETDATE(),
+    TotalPrice DECIMAL(10,2) NOT NULL
+);
