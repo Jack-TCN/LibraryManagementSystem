@@ -58,3 +58,8 @@ INSERT INTO BorrowRecord (ReaderID, BookID, BorrowDate, DueDate, ReturnDate, Sta
 
 -- 更新已借出图书的库存
 UPDATE Book SET Stock = Stock - 1 WHERE BookID IN (10002, 10003, 10004, 10005);
+
+-- 插入销售记录示例
+INSERT INTO SaleRecord (ReaderID, BookID, Quantity, SaleDate, TotalPrice) VALUES
+(1001, 10001, 1, '2025-02-01', 45.00),
+(1002, 10002, 2, '2025-02-05', 80.00);
